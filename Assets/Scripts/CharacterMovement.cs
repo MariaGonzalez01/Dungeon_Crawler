@@ -1,35 +1,45 @@
-using System;
 using UnityEngine;
 
+[RequireComponent(typeof(CharacterController))]
 public class CharacterMovement : MonoBehaviour
 {
-    float moveSpeed;
-    private CharacterController chController;
+    [Header("Movimiento")]
+    [SerializeField] private float speed = 5.0f;
+    [SerializeField] private float gravity = -9.81f;
 
-    void Start()
+    private CharacterController controller;
+    private Vector3 velocity;
+
+    private void Awake()
     {
-        chController = GetComponent<CharacterController>();
+        controller = GetComponent<CharacterController>();
     }
 
-    void Update()
+    private void Update()
     {
-        Move();
+        float dt = Time.deltaTime;
 
-    }
+        if (controller.isGrounded && velocity.y < 0f)
+        {
+            velocity.y = -2f;
+        }
 
-    private void Move()
-    {
-        // 1
-        float horizontal = Input.GetAxis("Horizontal");
-        float vertical = Input.GetAxis("Vertical");
+        float x = Input.GetAxisRaw("Horizontal");
+        float z = Input.GetAxisRaw("Vertical");
 
-        Vector3 input = new Vector3(horizontal, 0, vertical);
-        input = Vector3.ClampMagnitude(input, 1.0f);
+        // Calcula dirección y normaliza en diagonales para evitar velocidad extra
+        Vector3 moveInput = transform.right * x + transform.forward * z;
 
-        //Velocidad movimiento
-        Vector3 targetVelocity = input * moveSpeed;
+        if (moveInput.sqrMagnitude > 1f)
+        {
+            moveInput.Normalize();
+        }
 
-        //6
-        chController.Move(input * Time.deltaTime);
+        velocity.x = moveInput.x * speed;
+        velocity.z = moveInput.z * speed;
+        velocity.y += gravity * dt;
+
+        // Una sola llamada a Move() por frame para optimizar física
+        controller.Move(velocity * dt);
     }
 }
