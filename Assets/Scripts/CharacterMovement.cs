@@ -27,7 +27,6 @@ public class CharacterMovement : MonoBehaviour
         float x = Input.GetAxisRaw("Horizontal");
         float z = Input.GetAxisRaw("Vertical");
 
-        // Calcula dirección y normaliza en diagonales para evitar velocidad extra
         Vector3 moveInput = transform.right * x + transform.forward * z;
 
         if (moveInput.sqrMagnitude > 1f)
@@ -39,7 +38,6 @@ public class CharacterMovement : MonoBehaviour
         velocity.z = moveInput.z * speed;
         velocity.y += gravity * dt;
 
-        // Una sola llamada a Move() por frame para optimizar física
         controller.Move(velocity * dt);
     }
 }
